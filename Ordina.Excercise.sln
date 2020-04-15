@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29721.120
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ordina.Excercise", "Ordina.Excercise\Ordina.Excercise.csproj", "{A09DA406-A1A6-43B1-8826-6485A121EDF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ordina.FileReading", "Ordina.FileReading\Ordina.FileReading.csproj", "{77090D99-43A2-48D0-A5DD-11D5D70D5873}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A09DA406-A1A6-43B1-8826-6485A121EDF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A09DA406-A1A6-43B1-8826-6485A121EDF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A09DA406-A1A6-43B1-8826-6485A121EDF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A09DA406-A1A6-43B1-8826-6485A121EDF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77090D99-43A2-48D0-A5DD-11D5D70D5873}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77090D99-43A2-48D0-A5DD-11D5D70D5873}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77090D99-43A2-48D0-A5DD-11D5D70D5873}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77090D99-43A2-48D0-A5DD-11D5D70D5873}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BE815723-9B60-4771-83F7-4983C2AB9884}
+	EndGlobalSection
+EndGlobal

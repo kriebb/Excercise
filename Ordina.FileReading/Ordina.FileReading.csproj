@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.1</Version>
+    <Authors>Kristof R</Authors>
+    <Company>N/A</Company>
+    <Product>FileReading Library</Product>
+    <Description>Based on a certain userstories, this package should help you read files</Description>
+    <Copyright>Kristof R</Copyright>
+    <PackageReleaseNotes>A TextFileReader that implements an IReader</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Abstractions" Version="10.0.8" />
+  </ItemGroup>
+
+</Project>
