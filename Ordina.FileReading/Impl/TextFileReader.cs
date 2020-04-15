@@ -4,7 +4,8 @@ using System.IO.Abstractions;
 
 namespace Ordina.FileReading
 {
-    public class TextFileReader : IReader
+
+    internal class TextFileReader : IReader
     {
         public TextFileReader(IFileSystem fileSystem)
         {

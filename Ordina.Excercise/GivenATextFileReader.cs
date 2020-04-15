@@ -15,6 +15,25 @@ namespace Ordina.Excercise
         }
 
         [Fact]
+        public void HowTheUserShouldUseIt_Sample()
+        {
+            var fileReader = ReaderFactory.Create();
+            var content = fileReader.ReadContent("exc1.txt");
+
+            Assert.NotNull(content);
+            Assert.StartsWith(@"3. Implement a file reading ""library"" that provides the following functionalities: ", content);
+        
+            }
+        [Fact]
+        public void IntegrationTest_WhenWeWantToReadFromTheFileSystem_ItShouldBeRead()
+        {
+            var fileReader = new TextFileReader(new System.IO.Abstractions.FileSystem());
+            var content = fileReader.ReadContent("exc1.txt");
+
+            Assert.NotNull(content);
+            Assert.StartsWith(@"3. Implement a file reading ""library"" that provides the following functionalities: ", content);
+        }
+        [Fact]
         public void FileThatHasBeenReadShouldReturnSameValue()
         {
             string exptectedCurrentDir = @"c:\";
@@ -42,7 +61,7 @@ namespace Ordina.Excercise
             IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
             fileDictionary.Add($"{exptectedCurrentDir}{expectedPath}.old", new MockFileData(expectedContent, System.Text.Encoding.UTF8));
 
-            var fileSystem = new MockFileSystem(fileDictionary,exptectedCurrentDir);
+            var fileSystem = new MockFileSystem(fileDictionary, exptectedCurrentDir);
 
             var reader = new TextFileReader(fileSystem);
 
@@ -78,7 +97,7 @@ namespace Ordina.Excercise
             System.Collections.Generic.IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
             fileDictionary.Add($"{exptectedCurrentDir}{expectedPath}.old", new MockFileData(expectedContent, System.Text.Encoding.UTF8));
 
-            var fileSystem = new MockFileSystem(fileDictionary,exptectedCurrentDir);
+            var fileSystem = new MockFileSystem(fileDictionary, exptectedCurrentDir);
 
             var reader = new TextFileReader(fileSystem);
 
@@ -95,7 +114,7 @@ namespace Ordina.Excercise
             System.Collections.Generic.IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
             fileDictionary.Add(expectedPath + ".old", new MockFileData(expectedContent, System.Text.Encoding.UTF8));
 
-            var fileSystem = new MockFileSystem(fileDictionary,exptectedCurrentDir);
+            var fileSystem = new MockFileSystem(fileDictionary, exptectedCurrentDir);
 
             var reader = new TextFileReader(fileSystem);
 
