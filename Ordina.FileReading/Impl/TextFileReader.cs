@@ -1,30 +1,25 @@
-﻿using System;
-using System.IO;
-using System.IO.Abstractions;
+﻿using System.IO.Abstractions;
+using System.Text.RegularExpressions;
 
 namespace Ordina.FileReading
 {
-
-    internal class TextFileReader : IReader
+    internal class TextFileReader : ITextReader
     {
-        public TextFileReader(IFileSystem fileSystem)
+        private readonly IPathValidations _pathValidations;
+        private readonly IFileSystem _fileSystem;
+
+        public TextFileReader(IPathValidations pathValidations, IFileSystem fileSystem)
         {
+            _pathValidations = pathValidations;
             _fileSystem = fileSystem;
         }
 
-        private IFileSystem _fileSystem;
 
         public string ReadContent(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
-                throw new ArgumentNullException(nameof(path), "The parameter you supplied was not valid.");
+            _pathValidations.ThrowWhenInvalid(path);
 
-            var file = _fileSystem.FileInfo.FromFileName(path);
-            if (!file.Exists)
-                throw new FileNotFoundException($"couldn't found the file {path}");
-
-            var content = _fileSystem.File.ReadAllText(path);
-            return content;
+            return _fileSystem.File.ReadAllText(path);
         }
     }
 }

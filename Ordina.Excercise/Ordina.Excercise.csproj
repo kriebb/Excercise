@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="System.IO.Abstractions" Version="10.0.8" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="10.0.8" />
     <PackageReference Include="xunit" Version="2.4.0" />
@@ -18,6 +19,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ordina.FileReading\Ordina.FileReading.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="exc1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="exc2.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
