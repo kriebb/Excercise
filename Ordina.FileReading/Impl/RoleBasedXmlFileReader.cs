@@ -18,5 +18,12 @@ namespace Ordina.FileReading
             _rbacService.ThrowWhenCantReadContent(path); //todo, change this with IoC and middleware, for know, this will do
             return _xmlReader.ReadContent(path);
         }
+
+        public XDocument ReadContent(string path, IDecryptionAlgorithm decryptionAlgorithm)
+        {
+            _rbacService.ThrowWhenCantReadContent(path); //todo, change this with IoC and middleware, for know, this will do
+            return _xmlReader.ReadContent(path,decryptionAlgorithm);
+
+        }
     }
 }
