@@ -8,7 +8,6 @@ namespace Ordina.FileReading
     {
         private readonly IPathValidations _pathValidations;
         private readonly IFileSystem _fileSystem;
-        private readonly ITextReader _textReader;
 
         public JsonFileReader(IPathValidations pathValidations, IFileSystem fileSystem)
         {
