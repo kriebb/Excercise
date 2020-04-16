@@ -22,7 +22,6 @@ namespace Ordina.FileReading
 
             return _fileSystem.File.ReadAllText(path);
         }
-
         public string ReadContent(string path, IDecryptionAlgorithm decryptionAlgorithm)
         {
             if(decryptionAlgorithm == null)
