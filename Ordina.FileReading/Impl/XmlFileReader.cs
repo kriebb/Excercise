@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using System.Security;
 using System.Xml;
 using System.Xml.Linq;
+using Decor;
 
 namespace Ordina.FileReading
 {
@@ -20,6 +21,7 @@ namespace Ordina.FileReading
             _textReader = textReader ?? throw new ArgumentNullException(nameof(textReader));
         }
 
+        [Decorate(typeof(RbacDecorator))]
         public XDocument ReadContent(string path)
         {
             _pathValidations.ThrowWhenInvalid(path);
@@ -38,6 +40,7 @@ namespace Ordina.FileReading
 
             }
         }
+        [Decorate(typeof(RbacDecorator))]
 
         public XDocument ReadContent(string path, IDecryptionAlgorithm decryptionAlgorithm)
         {

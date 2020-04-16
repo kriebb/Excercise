@@ -53,12 +53,23 @@ namespace Ordina.Excercise
         }
 
         [Fact]
-        public void GivenACustomRbacService_Sample()
+        public void GivenACustomRbacService_ForXml_Sample()
         {
             var rbacService = NSubstitute.Substitute.For<IRbacService>();
             rbacService.When(x => x.ThrowWhenCantReadContent(Arg.Any<string>())).Do(callInfo => throw new SecurityException("testmethod is not allowed"));
 
             var fileReader = ReaderFactory.CreateXmlReader(rbacService);
+            Assert.Throws<SecurityException>(() => fileReader.ReadContent("exc2.xml"));
+
+        }
+
+        [Fact]
+        public void GivenACustomRbacService_ForText_Sample()
+        {
+            var rbacService = NSubstitute.Substitute.For<IRbacService>();
+            rbacService.When(x => x.ThrowWhenCantReadContent(Arg.Any<string>())).Do(callInfo => throw new SecurityException("testmethod is not allowed"));
+
+            var fileReader = ReaderFactory.CreateTextReader(rbacService);
             Assert.Throws<SecurityException>(() => fileReader.ReadContent("exc2.xml"));
 
         }
@@ -83,9 +94,6 @@ namespace Ordina.Excercise
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddFileReading();
             var provider = serviceCollection.BuildServiceProvider(true);
-
-
-            //injection simulation
 
             var reader = provider.GetService<ITextReader>();
             Assert.NotNull(reader);

@@ -5,8 +5,8 @@ namespace Ordina.FileReading
 {
     public class ReaderFactory
     {
-        private static ServiceProvider _provider;
-        private static ServiceCollection _serviceCollection;
+        private static readonly ServiceProvider _provider;
+        private static readonly ServiceCollection _serviceCollection;
 
         static ReaderFactory()
         {
@@ -19,14 +19,16 @@ namespace Ordina.FileReading
         /// Will build using DI a dependency injection framework and returns the default instance
         /// </summary>
         /// <returns></returns>
-        public static ITextReader CreateTextReader()
+        public static ITextReader CreateTextReader(IRbacService rbacService = null)
         {
+            if (rbacService != null)
+            {
+                _serviceCollection.Replace(ServiceDescriptor.Singleton<IRbacService>(rbacService));
+                var provider = _serviceCollection.BuildServiceProvider();
+                return provider.GetService<ITextReader>();
+            }
             return _provider.GetService<ITextReader>();
         }
-
-        /// <summary>
-        /// When using the defaults, you get a small speedgain because the dependency Injection isn't rebuild. There aren't performance issues at the moment, so we keep it as is.
-        /// </summary>
         /// <param name="rbacService"></param>
         /// <returns></returns>
         public static IXmlReader CreateXmlReader(IRbacService rbacService = null)

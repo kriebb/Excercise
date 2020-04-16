@@ -1,8 +1,12 @@
 using System;
 using Ordina.FileReading;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using Decor;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using NSubstitute.Core;
 using NSubstitute.ExceptionExtensions;
@@ -65,6 +69,42 @@ namespace Ordina.Excercise
 
             decryptionAlgorithm.Received(1).Decrypt(Arg.Is(_expectedContent));
 
+        }
+
+        [Fact]
+        public void WhenWeAskToReadContent_WithoutDecryption_RoleProviderShouldBeChecked()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddFileReading();
+            var mockedRbacService = Substitute.For<IRbacService>();
+
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IRbacService>(mockedRbacService));
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IFileSystem>(_fileSystem));
+
+            var provider = serviceCollection.BuildServiceProvider(true);
+
+            var reader = provider.GetService<ITextReader>();
+            reader.ReadContent(_expFullNamePath);
+
+            mockedRbacService.Received(1).ThrowWhenCantReadContent(_expFullNamePath);
+        }
+
+        [Fact]
+        public void WhenWeAskToReadContent_WithDecryption_RoleProviderShouldBeChecked()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddFileReading();
+            var mockedRbacService = Substitute.For<IRbacService>();
+            var decryption = new ReverseStringDecryption();
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IRbacService>(mockedRbacService));
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IFileSystem>(_fileSystem));
+
+            var provider = serviceCollection.BuildServiceProvider(true);
+
+            var reader = provider.GetService<ITextReader>();
+            reader.ReadContent(_expFullNamePath, decryption);
+
+            mockedRbacService.Received(1).ThrowWhenCantReadContent(_expFullNamePath);
         }
         [Fact]
         public void WhenWeSupplyAnANullReferenceForADecryptionAlgorithm_ItShouldBeChecked()

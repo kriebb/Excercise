@@ -5,6 +5,9 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Xml;
 using System.Xml.Linq;
+using Decor;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using NSubstitute.Core;
 using NSubstitute.ExceptionExtensions;
@@ -19,6 +22,8 @@ namespace Ordina.Excercise
         public GivenAXmlFileReader()
         {
             _pathValidations = NSubstitute.Substitute.For<IPathValidations>();
+
+
         }
 
 
@@ -69,7 +74,59 @@ namespace Ordina.Excercise
 
             Assert.Null(content);
         }
+        [Fact]
+        public void WhenWeAskToReadContent_WithoutDecryption_RoleProviderShouldBeChecked()
+        {
+            string expectedDir = @"c:\";
+            string expectedPath = @"someFile.tst";
 
+            string expectedContent = "<xml></xml>";
+            System.Collections.Generic.IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
+            fileDictionary.Add($"{expectedDir}{expectedPath}", new MockFileData(expectedContent, System.Text.Encoding.UTF8));
+
+            var fileSystem = new MockFileSystem(fileDictionary, expectedDir);
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddFileReading();
+            var mockedRbacService = Substitute.For<IRbacService>();
+
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IRbacService>(mockedRbacService));
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IFileSystem>(fileSystem));
+
+            var provider = serviceCollection.BuildServiceProvider(true);
+
+            var reader = provider.GetService<IXmlReader>();
+            reader.ReadContent(Path(expectedDir, expectedPath));
+
+            mockedRbacService.Received(1).ThrowWhenCantReadContent(Path(expectedDir, expectedPath));
+        }
+
+        [Fact]
+        public void WhenWeAskToReadContent_WithDecryption_RoleProviderShouldBeChecked()
+        {
+            string expectedDir = @"c:\";
+            string expectedPath = @"someFile.tst";
+
+            string expectedContent = "<xml></xml>";
+            System.Collections.Generic.IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
+            fileDictionary.Add($"{expectedDir}{expectedPath}", new MockFileData(expectedContent, System.Text.Encoding.UTF8));
+
+            var fileSystem = new MockFileSystem(fileDictionary, expectedDir);
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddFileReading();
+            var mockedRbacService = Substitute.For<IRbacService>();
+            var decryption = new ReverseStringDecryption();
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IRbacService>(mockedRbacService));
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IFileSystem>(fileSystem));
+
+            var provider = serviceCollection.BuildServiceProvider(true);
+
+            var reader = provider.GetService<IXmlReader>();
+            reader.ReadContent(Path(expectedDir, expectedPath), decryption);
+
+            mockedRbacService.Received(2).ThrowWhenCantReadContent(Path(expectedDir, expectedPath)); //2 because of the TextReader decoration check and the Xml decoration check
+        }
         [Fact]
         public void WhenPathValidationsThrowsException_CallerShouldGetTheException()
         {
