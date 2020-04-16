@@ -19,6 +19,17 @@ namespace Ordina.Excercise
             Assert.StartsWith(@"3. Implement a file reading ""library"" that provides the following functionalities: ", content);
 
         }
+
+        [Fact]
+        public void GivenAJsonReader_ReadContent_Sample()
+        {
+            var fileReader = ReaderFactory.CreateJsonReader();
+            var content = fileReader.ReadContent("exc7.json");
+
+            Assert.NotNull(content);
+            Assert.True(content.RootElement.GetProperty("foo").ValueEquals("bar"));
+        }
+
         [Fact]
         public void GivenAFileTextReader_ReadContentWithDecryption_Sample()
         {
@@ -96,6 +107,17 @@ namespace Ordina.Excercise
             var provider = serviceCollection.BuildServiceProvider(true);
 
             var reader = provider.GetService<ITextReader>();
+            Assert.NotNull(reader);
+        }
+
+        [Fact]
+        public void GivenTheReaderUsingDependencyInjection_JsonReader_Sample()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddFileReading();
+            var provider = serviceCollection.BuildServiceProvider(true);
+
+            var reader = provider.GetService<IJsonReader>();
             Assert.NotNull(reader);
         }
     }

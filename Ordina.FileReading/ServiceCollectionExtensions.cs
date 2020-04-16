@@ -16,6 +16,7 @@ namespace Ordina.FileReading
             serviceCollection.TryAddSingleton<RbacDecorator>();
             serviceCollection.AddSingleton<ITextReader, TextFileReader>().Decorated();
             serviceCollection.AddSingleton<IXmlReader, XmlFileReader>().Decorated(); ;
+            serviceCollection.AddSingleton<IJsonReader, JsonFileReader>();
 
             serviceCollection.TryAddSingleton<IClaimsRepository, NullClaimsRepository>();
             serviceCollection.TryAddSingleton<IFileSystem>(provider => new FileSystem());

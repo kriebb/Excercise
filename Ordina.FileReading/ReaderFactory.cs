@@ -42,5 +42,9 @@ namespace Ordina.FileReading
             return _provider.GetService<IXmlReader>();
         }
 
+        public static IJsonReader CreateJsonReader()
+        {
+            return _provider.GetService<IJsonReader>();
+        }
     }
 }
