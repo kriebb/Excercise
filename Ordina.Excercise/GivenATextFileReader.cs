@@ -12,23 +12,26 @@ namespace Ordina.Excercise
 {
     public class GivenATextFileReader
     {
-        private IPathValidations _pathValidations;
+        private readonly IPathValidations _pathValidations;
+        private readonly string _expectedContent;
+        private readonly MockFileSystem _fileSystem;
+        private readonly string _expFullNamePath;
 
         public GivenATextFileReader()
         {
             _pathValidations = NSubstitute.Substitute.For<IPathValidations>();
+
+            var exptectedCurrentDir = @"c:\";
+            var expectedPath = @"someFile.tst";
+            _expFullNamePath = $"{exptectedCurrentDir}{expectedPath}";
+            _expectedContent = "a file";
+            System.Collections.Generic.IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
+            fileDictionary.Add(expectedPath, new MockFileData(_expectedContent, System.Text.Encoding.UTF8));
+
+            _fileSystem = new MockFileSystem(fileDictionary, exptectedCurrentDir);
         }
 
-        [Fact]
-        public void HowTheUserShouldUseIt_Sample()
-        {
-            var fileReader = ReaderFactory.CreateTextReader();
-            var content = fileReader.ReadContent("exc1.txt");
 
-            Assert.NotNull(content);
-            Assert.StartsWith(@"3. Implement a file reading ""library"" that provides the following functionalities: ", content);
-
-        }
         [Fact]
         public void IntegrationTest_WhenWeWantToReadFromTheFileSystem_ItShouldBeRead()
         {
@@ -43,27 +46,38 @@ namespace Ordina.Excercise
         [Fact]
         public void FileThatHasBeenReadShouldReturnSameValue()
         {
-            string exptectedCurrentDir = @"c:\";
-            string expectedPath = @"someFile.tst";
 
-            string expectedContent = "a file";
-            System.Collections.Generic.IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
-            fileDictionary.Add(expectedPath, new MockFileData(expectedContent, System.Text.Encoding.UTF8));
 
-            var fileSystem = new MockFileSystem(fileDictionary, exptectedCurrentDir);
+            var reader = new TextFileReader(_pathValidations, _fileSystem);
+            var content = reader.ReadContent(_expFullNamePath);
 
-            var reader = new TextFileReader(_pathValidations, fileSystem);
-            var content = reader.ReadContent($"{exptectedCurrentDir}{expectedPath}");
-
-            Assert.Equal(expectedContent, content);
+            Assert.Equal(_expectedContent, content);
         }
 
+        [Fact]
+        public void WhenWeSupplyAnDecryptionAlgorithm_ItShouldBeCalled()
+        {
+            var reader = new TextFileReader(_pathValidations, _fileSystem);
+
+            var decryptionAlgorithm = NSubstitute.Substitute.For<IDecryptionAlgorithm>();
+
+            var decryptedContent = reader.ReadContent(_expFullNamePath, decryptionAlgorithm);
+
+            decryptionAlgorithm.Received(1).Decrypt(Arg.Is(_expectedContent));
+
+        }
+        [Fact]
+        public void WhenWeSupplyAnANullReferenceForADecryptionAlgorithm_ItShouldBeChecked()
+        {
+            var reader = new TextFileReader(_pathValidations, _fileSystem);
+            Assert.Throws<ArgumentNullException>(() => reader.ReadContent(_expFullNamePath, null));
+        }
         [Fact]
         public void WhenPathValidationsThrowsException_CallerShouldGetTheException()
         {
             var mockSystem = new MockFileSystem();
             var exceptionMessage = nameof(WhenPathValidationsThrowsException_CallerShouldGetTheException) + "throws";
-            _pathValidations.When(x => x.ThrowWhenInvalid(Arg.Any<string>())).Do( (callInfo)=> throw new Exception(exceptionMessage));
+            _pathValidations.When(x => x.ThrowWhenInvalid(Arg.Any<string>())).Do((callInfo) => throw new Exception(exceptionMessage));
             var reader = new TextFileReader(_pathValidations, mockSystem);
 
             var ex = Assert.Throws<Exception>(() => reader.ReadContent(@"c:\some\path\someFile.ext"));

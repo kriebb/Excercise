@@ -21,14 +21,7 @@ namespace Ordina.Excercise
             _pathValidations = NSubstitute.Substitute.For<IPathValidations>();
         }
 
-        [Fact]
-        public void HowTheUserShouldUseIt_Sample()
-        {
-            var fileReader = ReaderFactory.CreateXmlReader();
-            var content = fileReader.ReadContent("exc2.xml");
 
-            Assert.NotNull(content);
-        }
         [Fact]
         public void IntegrationTest_WhenWeWantToReadFromTheFileSystem_ItShouldBeRead()
         {
