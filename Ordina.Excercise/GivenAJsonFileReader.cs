@@ -3,7 +3,8 @@ using Ordina.FileReading;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Xml.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using Xunit;
 
@@ -110,6 +111,60 @@ namespace Ordina.Excercise
             var content = reader.ReadContent(Path(expectedDir, expectedPath), decryption);
 
             Assert.Null(content);
+        }
+
+        [Fact]
+        public void WhenWeAskToReadContent_WithoutDecryption_RoleProviderShouldBeChecked()
+        {
+            string expectedDir = @"c:\";
+            string expectedPath = @"someFile.tst";
+
+            var expectedContent = @"{ ""foo"":""bar""}";
+            System.Collections.Generic.IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
+            fileDictionary.Add($"{expectedDir}{expectedPath}", new MockFileData(expectedContent, System.Text.Encoding.UTF8));
+
+            var fileSystem = new MockFileSystem(fileDictionary, expectedDir);
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddFileReading();
+            var mockedRbacService = Substitute.For<IRbacService>();
+
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IRbacService>(mockedRbacService));
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IFileSystem>(fileSystem));
+
+            var provider = serviceCollection.BuildServiceProvider(true);
+
+            var reader = provider.GetService<IJsonReader>();
+            reader.ReadContent(Path(expectedDir, expectedPath));
+
+            mockedRbacService.Received(1).ThrowWhenCantReadContent(Path(expectedDir, expectedPath));
+        }
+
+        [Fact]
+        public void WhenWeAskToReadContent_WithDecryption_RoleProviderShouldBeChecked()
+        {
+            string expectedDir = @"c:\";
+            string expectedPath = @"someFile.tst";
+
+            var expectedContent = @"{ ""foo"":""bar""}";
+            System.Collections.Generic.IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
+            fileDictionary.Add($"{expectedDir}{expectedPath}", new MockFileData(expectedContent, System.Text.Encoding.UTF8));
+
+            var fileSystem = new MockFileSystem(fileDictionary, expectedDir);
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddFileReading();
+            var mockedRbacService = Substitute.For<IRbacService>();
+            var decryption = new ReverseStringDecryption();
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IRbacService>(mockedRbacService));
+            serviceCollection.Replace(ServiceDescriptor.Singleton<IFileSystem>(fileSystem));
+
+            var provider = serviceCollection.BuildServiceProvider(true);
+
+            var reader = provider.GetService<IJsonReader>();
+            reader.ReadContent(Path(expectedDir, expectedPath), decryption);
+
+            mockedRbacService.Received(1).ThrowWhenCantReadContent(Path(expectedDir, expectedPath)); //2 because of the TextReader decoration check and the Xml decoration check
         }
 
     }

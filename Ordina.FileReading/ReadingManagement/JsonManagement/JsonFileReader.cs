@@ -4,20 +4,17 @@ using System.Text.Json;
 
 namespace Ordina.FileReading
 {
-    internal class JsonFileReader : IJsonReader
+    internal class JsonFileReader : ReaderBase<JsonDocument>, IJsonReader
     {
-        private readonly IPathValidations _pathValidations;
         private readonly IFileSystem _fileSystem;
 
-        public JsonFileReader(IPathValidations pathValidations, IFileSystem fileSystem)
+        public JsonFileReader(IPathValidations pathValidations, IFileSystem fileSystem):base(pathValidations)
         {
-            _pathValidations = pathValidations ?? throw new ArgumentNullException(nameof(pathValidations));
             this._fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         }
 
-        public JsonDocument ReadContent(string path)
+        protected override JsonDocument DoReadContent(string path)
         {
-            _pathValidations.ThrowWhenInvalid(path);
 
             var text = _fileSystem.File.ReadAllText(path);
             try
@@ -32,10 +29,8 @@ namespace Ordina.FileReading
             }
         }
 
-        public JsonDocument ReadContent(string path, IDecryptionAlgorithm decryptionAlgorithm)
+        protected override JsonDocument DoReadContent(string path, IDecryptionAlgorithm decryptionAlgorithm)
         {
-            _pathValidations.ThrowWhenInvalid(path);
-
             var text = _fileSystem.File.ReadAllText(path);
 
             var decryptedContent = decryptionAlgorithm.Decrypt(text);

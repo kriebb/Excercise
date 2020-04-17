@@ -14,7 +14,6 @@ namespace Ordina.FileReading
 
         public async Task OnInvoke(Call call)
         {
-
             var path = call.Arguments[0] as string;
             _rbacService.ThrowWhenCantReadContent(path);
 
