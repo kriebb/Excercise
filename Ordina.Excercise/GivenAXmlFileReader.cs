@@ -22,8 +22,6 @@ namespace Ordina.Excercise
         public GivenAXmlFileReader()
         {
             _pathValidations = NSubstitute.Substitute.For<IPathValidations>();
-
-
         }
 
 
@@ -32,8 +30,7 @@ namespace Ordina.Excercise
         {
             var fileSystem = new FileSystem();
             var pathValidations = new PathValidations(new FileSystem());
-            var textReader = Substitute.For<ITextReader>();
-            var fileReader = new XmlFileReader(pathValidations, fileSystem, textReader);
+            var fileReader = new XmlFileReader(pathValidations, fileSystem);
             var content = fileReader.ReadContent("exc2.xml");
 
             Assert.NotNull(content);
@@ -50,15 +47,14 @@ namespace Ordina.Excercise
             fileDictionary.Add($"{expectedDir}{expectedPath}", new MockFileData(expectedContent, System.Text.Encoding.UTF8));
 
             var fileSystem = new MockFileSystem(fileDictionary, expectedDir);
-            var textReader = Substitute.For<ITextReader>();
-            var reader = new XmlFileReader(_pathValidations, fileSystem, textReader);
+            var reader = new XmlFileReader(_pathValidations, fileSystem);
             var content = reader.ReadContent($"{expectedDir}{expectedPath}");
 
             Assert.True(XNode.DeepEquals(XDocument.Parse(expectedContent).Document, content));
         }
 
         [Fact]
-        public void FileWithInvalidXmlThatHasBeenReadShouldReturnSameValue()
+        public void FileWithInvalidXmlThatHasBeenReadShouldReturnNull()
         {
             string expectedDir = @"c:\";
             string expectedPath = @"someFile.tst";
@@ -68,8 +64,7 @@ namespace Ordina.Excercise
             fileDictionary.Add($"{expectedDir}{expectedPath}", new MockFileData(expectedContent, System.Text.Encoding.UTF8));
 
             var fileSystem = new MockFileSystem(fileDictionary, expectedDir);
-            var textReader = Substitute.For<ITextReader>();
-            var reader = new XmlFileReader(_pathValidations, fileSystem, textReader);
+            var reader = new XmlFileReader(_pathValidations, fileSystem);
             var content = reader.ReadContent($"{expectedDir}{expectedPath}");
 
             Assert.Null(content);
@@ -125,7 +120,7 @@ namespace Ordina.Excercise
             var reader = provider.GetService<IXmlReader>();
             reader.ReadContent(Path(expectedDir, expectedPath), decryption);
 
-            mockedRbacService.Received(2).ThrowWhenCantReadContent(Path(expectedDir, expectedPath)); //2 because of the TextReader decoration check and the Xml decoration check
+            mockedRbacService.Received(1).ThrowWhenCantReadContent(Path(expectedDir, expectedPath)); //2 because of the TextReader decoration check and the Xml decoration check
         }
         [Fact]
         public void WhenPathValidationsThrowsException_CallerShouldGetTheException()
@@ -133,9 +128,8 @@ namespace Ordina.Excercise
             var mockSystem = new MockFileSystem();
             var exceptionMessage = nameof(WhenPathValidationsThrowsException_CallerShouldGetTheException) + "throws";
             _pathValidations.When(x => x.ThrowWhenInvalid(Arg.Any<string>())).Do((callInfo) => throw new Exception(exceptionMessage));
-            var textReader = Substitute.For<ITextReader>();
 
-            var reader = new XmlFileReader(_pathValidations, mockSystem, textReader);
+            var reader = new XmlFileReader(_pathValidations, mockSystem);
 
             var ex = Assert.Throws<Exception>(() => reader.ReadContent(@"c:\some\path\someFile.ext"));
             Assert.Equal(exceptionMessage, ex.Message);
@@ -154,11 +148,9 @@ namespace Ordina.Excercise
             fileDictionary.Add($"{expectedDir}{expectedPath}", new MockFileData(encryptedContent, System.Text.Encoding.UTF8));
 
             var fileSystem = new MockFileSystem(fileDictionary, expectedDir);
-            var textReader = Substitute.For<ITextReader>();
             var decryption = new ReverseStringDecryption();
-            textReader.ReadContent(Path(expectedDir, expectedPath), decryption).Returns(expectedDecryptedContent);
 
-            var reader = new XmlFileReader(_pathValidations, fileSystem, textReader);
+            var reader = new XmlFileReader(_pathValidations, fileSystem);
             var content = reader.ReadContent(Path(expectedDir, expectedPath), decryption);
 
             Assert.True(XNode.DeepEquals(XDocument.Parse(expectedDecryptedContent).Document, content));
@@ -183,11 +175,9 @@ namespace Ordina.Excercise
             fileDictionary.Add($"{expectedDir}{expectedPath}", new MockFileData(encryptedContent, System.Text.Encoding.UTF8));
 
             var fileSystem = new MockFileSystem(fileDictionary, expectedDir);
-            var textReader = Substitute.For<ITextReader>();
             var decryption = new ReverseStringDecryption();
-            textReader.ReadContent(Path(expectedDir, expectedPath), decryption).Returns(expectedDecryptedContent);
 
-            var reader = new XmlFileReader(_pathValidations, fileSystem, textReader);
+            var reader = new XmlFileReader(_pathValidations, fileSystem);
             var content = reader.ReadContent($"{expectedDir}{expectedPath}", decryption);
 
             Assert.Null(content);

@@ -3,6 +3,7 @@ using Ordina.FileReading;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Xml.Linq;
 using NSubstitute;
 using Xunit;
 
@@ -50,6 +51,7 @@ namespace Ordina.Excercise
         }
 
 
+
         [Fact]
         public void WhenPathValidationsThrowsException_CallerShouldGetTheException()
         {
@@ -63,6 +65,52 @@ namespace Ordina.Excercise
 
         }
 
+
+        [Fact]
+        public void EncryptedJSONFileShouldBeAbleToBeRead()
+        {
+            string expectedDir = @"c:\";
+            string expectedPath = @"someFile.tst";
+
+            string encryptedContent = @"} ""rab"":""oof"" {";
+            System.Collections.Generic.IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
+            fileDictionary.Add($"{expectedDir}{expectedPath}", new MockFileData(encryptedContent, System.Text.Encoding.UTF8));
+
+            var fileSystem = new MockFileSystem(fileDictionary, expectedDir);
+            var decryption = new ReverseStringDecryption();
+
+            var reader = new JsonFileReader(_pathValidations, fileSystem);
+            var content = reader.ReadContent(Path(expectedDir, expectedPath), decryption);
+
+            Assert.NotNull(content);
+            Assert.True(content.RootElement.GetProperty("foo").ValueEquals("bar"));
+        }
+
+        private static string Path(string expectedDir, string expectedPath)
+        {
+            return $"{expectedDir}{expectedPath}";
+
+        }
+
+
+        [Fact]
+        public void FalseEncryptedJSONFileShouldReturnNull()
+        {
+            string expectedDir = @"c:\";
+            string expectedPath = @"someFile.tst";
+
+            string encryptedContent = @"{ ""rab"":""oof"" {";
+            System.Collections.Generic.IDictionary<string, MockFileData> fileDictionary = new Dictionary<string, MockFileData>();
+            fileDictionary.Add($"{expectedDir}{expectedPath}", new MockFileData(encryptedContent, System.Text.Encoding.UTF8));
+
+            var fileSystem = new MockFileSystem(fileDictionary, expectedDir);
+            var decryption = new ReverseStringDecryption();
+
+            var reader = new JsonFileReader(_pathValidations, fileSystem);
+            var content = reader.ReadContent(Path(expectedDir, expectedPath), decryption);
+
+            Assert.Null(content);
+        }
 
     }
 }
