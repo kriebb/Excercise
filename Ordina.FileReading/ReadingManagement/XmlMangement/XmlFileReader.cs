@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.IO.Abstractions;
 using System.Security;
 using System.Xml;
@@ -20,15 +21,7 @@ namespace Ordina.FileReading
         {
             using (var stream = _fileSystem.File.OpenRead(path))
             {
-                try
-                {
-                    var xDoc = XDocument.Load(stream);
-                    return xDoc;
-                }
-                catch (XmlException)
-                {
-                    return null;
-                }
+                return ToXDocument(stream);
             }
         }
 
@@ -36,21 +29,25 @@ namespace Ordina.FileReading
         {
             var encryptedContent = _fileSystem.File.ReadAllText(path);
             var decryptedContent = decryptionAlgorithm.Decrypt(encryptedContent);
+            using (var stream = decryptedContent.ToStream())
+            {
+                return ToXDocument(stream);
+            }
+        }
+
+        private static XDocument ToXDocument(Stream stream)
+        {
+
             try
             {
-                using (var decryptionContentStream = decryptedContent.ToStream())
-                {
-                    var xDoc = XDocument.Load(decryptionContentStream);
-                    return xDoc;
-                }
+                var xDoc = XDocument.Load(stream);
+                return xDoc;
             }
+
             catch (System.Xml.XmlException)
             {
                 return null;
             }
-
         }
-
-
     }
 }
